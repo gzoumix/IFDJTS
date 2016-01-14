@@ -1,0 +1,41 @@
+apply plugin: 'java'
+apply plugin: 'antlr'
+
+repositories {
+  mavenCentral()
+}
+
+
+////////////////////////////////////////////
+// 1. Dependencies
+
+dependencies {
+  antlr "org.antlr:antlr4:4.5.1" // use ANTLR version 4
+  compile "org.antlr:antlr4:4.5.1" // use ANTLR version 4
+  compile "org.ow2.sat4j:org.ow2.sat4j.core:2.3.5" // use the sat4j solver
+  runtime "org.antlr:antlr4:4.5.1" // use ANTLR version 4
+  testCompile 'junit:junit:4.12' // Use JUnit version 4
+}
+
+
+////////////////////////////////////////////
+// 2. Configurations
+
+jar {
+  manifest {
+    attributes 'Main-Class': 'org.gzoumix.ts.ifdj.IFDJTS'
+    attributes 'Class-Path': 'antlr-4.5.1-complete.jar'
+  }
+}
+
+sourceSets.main.java.srcDirs = ['src/main/java', 'src-gen/main/java']
+sourceSets.main.antlr.srcDirs = ['src/main/java/org/gzoumix/ts/ifdj/parser']
+
+generateGrammarSource {
+  outputDirectory = file('src-gen/main/java/org/gzoumix/ts/ifdj/parser')
+  arguments += ['-no-listener', '-package', 'org.gzoumix.ts.ifdj.parser']
+}
+
+
+////////////////////////////////////////////
+// 3. Tasks

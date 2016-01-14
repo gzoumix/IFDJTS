@@ -1,0 +1,106 @@
+
+
+////////////////////////////////////////////////////
+// 1. Feature Model
+
+
+features: EPL, Data, Operations, Lit, Print, Eval, Neg, Add;
+constraints: EPL
+ && (EPL => Data) && (EPL => Operations)
+ && (Data => Lit)
+ && (Operations => Print);
+
+////////////////////////////////////////////////////
+// 2. Configuration Knowledge
+
+delta order:
+ { DLitEval, DAddEval, DNeg, DOptionalPrint, DremAdd } <  DLitAddPrint,
+  { DNegPrint, DNegEval } < DNeg ;
+
+delta activation:
+  DLitAddPrint when true,
+  { DLitEval, DAddEval } when Eval,
+  DNeg when Neg,
+  DNegPrint when Neg && Print,
+  DNegEval when Neg && Eval,
+  DOptionalPrint when Add && Print,
+  DremAdd when !Add;
+
+////////////////////////////////////////////////////
+// 1. Core program
+
+delta DLitAddPrint {
+  adds class Exp extends Object { // only used as a type
+    String toString() { return ""; }
+  }
+
+  adds class Lit extends Exp {
+    int value;
+    Lit setLit(int n) { this.value = n; return this; }
+    String toString() { return this.value.toString(); }
+  }
+
+  adds class Add extends Exp {
+    Exp expr1;
+    Exp expr2;
+    Add setAdd(Exp a, Exp b) { this.expr1 = a; this.expr2 = b; return this; }
+    String toString() { return this.expr1.toString() ^ " + " ^ this.expr2.toString(); }
+  }
+}
+
+
+////////////////////////////////////////////////////
+// 2. Eval Feature
+
+delta DLitEval {
+  modifies Exp {
+    adds int eval() { return 0; }
+  }
+
+  modifies Lit {
+    adds int eval() { return this.value; }
+  }
+}
+
+delta DAddEval {
+  modifies Add {
+    adds int eval() { return expr1.eval() + this.expr2.eval(); }
+  }
+}
+
+
+////////////////////////////////////////////////////
+// 3. Neg Feature
+
+delta DNeg {
+  adds class Neg extends Exp {
+    Exp expr;
+    Neg setNeg(Exp a) { this.expr = a; return this; }
+  }
+}
+
+delta DNegPrint {
+  modifies Neg {
+    adds String toString() { return "-" ^ expr.toString(); }
+  }
+}
+
+delta DNegEval {
+  modifies Neg {
+    adds int eval() { return (-1) * expr.eval(); }
+  }
+}
+
+
+////////////////////////////////////////////////////
+// 4. Add Manipulation
+
+delta DOptionalPrint {
+  modifies Add {
+    modifies String toString() { return "(" ^ this.original() ^ ")"; }
+  }
+}
+
+delta DremAdd {
+  removes Add
+}

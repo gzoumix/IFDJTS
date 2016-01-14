@@ -1,0 +1,71 @@
+
+
+features: English, French, German, Repeat;
+constraints:
+     English && !French && !German
+  || !English && French && !German
+  || !English && !French && German;
+
+
+
+delta order:
+  DFrench < DGerman < DRepeatField < DRepeatCode;
+
+delta activation:
+  DFrench when French,
+  DGerman when German,
+  { DRepeatField, DRepeatCode }  when Repeat;
+
+
+
+
+class HelloWorld extends Object {
+  String main() {
+    return "Hello World";
+  }
+}
+
+
+delta DFrench {
+  modifies HelloWorld {
+    modifies String main() {
+      return "Bonjour tout le monde";
+    }
+  }
+}
+
+delta DGerman {
+  modifies HelloWorld {
+    modifies String main() {
+      return "Hallo Alles";
+    }
+  }
+}
+
+delta DRepeatField {
+  modifies HelloWorld {
+    adds int number;
+  }
+}
+
+delta DRepeatCode {
+  modifies HelloWorld {
+    modifies String main() {
+      number = 3;
+      return original();
+    }
+  }
+}
+
+
+
+/* Generated Constraint
+(  (  (Repeat => DRepeatField)
+   && (French => DFrench)
+   && ((!German && !French && English) || (!French && !English && German) || (French && !German && !English))
+   && (German => DGerman)
+   && (Repeat => DRepeatCode))
+ => (DRepeatCode => ((!DFrench && !DGerman) => DRepeatField)))
+
+ The way delta order is managed is messed up... DRepeatCode should be the last one to be applied.
+*/
