@@ -31,8 +31,8 @@ import org.gzoumix.ts.ifdj.data.syntax.expression.*;
 import org.gzoumix.ts.ifdj.data.syntax.formula.*;
 import org.gzoumix.ts.ifdj.data.syntax.visitor.VisitorBasic;
 import org.gzoumix.ts.ifdj.util.Reference;
-import org.gzoumix.util.Pair;
-import org.gzoumix.util.Triplet;
+import org.gzoumix.util.data.Pair;
+import org.gzoumix.util.data.Triplet;
 
 import java.util.*;
 

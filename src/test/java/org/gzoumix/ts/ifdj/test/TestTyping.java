@@ -29,12 +29,11 @@ import org.gzoumix.ts.ifdj.sat4j.Solution;
 import org.gzoumix.ts.ifdj.ts.Consistency;
 import org.gzoumix.ts.ifdj.ts.PartialTyping;
 import org.gzoumix.util.Global;
-import org.gzoumix.util.Pair;
+import org.gzoumix.util.data.Pair;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.sat4j.specs.TimeoutException;
 
 import java.io.IOException;
 import java.util.*;

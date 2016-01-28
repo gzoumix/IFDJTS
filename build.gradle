@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
   antlr "org.antlr:antlr4:4.5.1" // use ANTLR version 4
+  compile files('libs/gzoumlib.jar') // use my library
   compile "org.antlr:antlr4:4.5.1" // use ANTLR version 4
   compile "org.ow2.sat4j:org.ow2.sat4j.core:2.3.5" // use the sat4j solver
   runtime "org.antlr:antlr4:4.5.1" // use ANTLR version 4
@@ -33,7 +34,7 @@ sourceSets.main.antlr.srcDirs = ['src/main/java/org/gzoumix/ts/ifdj/parser']
 
 generateGrammarSource {
   outputDirectory = file('src-gen/main/java/org/gzoumix/ts/ifdj/parser')
-  arguments += ['-no-listener', '-package', 'org.gzoumix.ts.ifdj.parser']
+  arguments = ['-no-listener', '-package', 'org.gzoumix.ts.ifdj.parser']
 }
 
 

@@ -26,10 +26,8 @@ import org.gzoumix.ts.ifdj.data.syntax.delta.ClassModification;
 import org.gzoumix.ts.ifdj.data.syntax.delta.DeltaModule;
 import org.gzoumix.ts.ifdj.data.syntax.formula.IFormulaElement;
 import org.gzoumix.ts.ifdj.data.syntax.visitor.VisitorBasic;
-import org.gzoumix.util.Pair;
+import org.gzoumix.util.data.Pair;
 import org.gzoumix.util.graph.Graph;
-
-import java.util.Map;
 
 
 public class InheritanceGraphFactory extends VisitorBasic {
@@ -63,8 +61,8 @@ public class InheritanceGraphFactory extends VisitorBasic {
     String base = classs.getBaseClass();
     String sup = classs.getSuperClass();
     IFormulaElement d = this.getDeltaID();
-    this.graph.addVertice(base);
-    this.graph.addVertice(sup);
+    this.graph.addVertex(base);
+    this.graph.addVertex(sup);
     this.graph.addEdge(new Pair<IFormulaElement, ISuperClassDeclaration>(d, classs), base, sup);
   }
 
@@ -73,9 +71,9 @@ public class InheritanceGraphFactory extends VisitorBasic {
     String base = op.getBaseClass();
     String sup = op.getSuperClass();
     IFormulaElement d = this.getDeltaID();
-    this.graph.addVertice(base);
+    this.graph.addVertex(base);
     if(sup != null) {
-      this.graph.addVertice(sup);
+      this.graph.addVertex(sup);
       this.graph.addEdge(new Pair<IFormulaElement, ISuperClassDeclaration>(d, op), base, sup);
     }
   }

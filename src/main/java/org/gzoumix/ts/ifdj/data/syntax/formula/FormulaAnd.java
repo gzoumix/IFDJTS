@@ -21,7 +21,7 @@ package org.gzoumix.ts.ifdj.data.syntax.formula;
 import org.gzoumix.ts.ifdj.data.syntax.IASTNode;
 import org.gzoumix.ts.ifdj.data.syntax.visitor.IVisitor;
 import org.gzoumix.ts.ifdj.util.Reference;
-import org.gzoumix.util.ImmutableCollection;
+import org.gzoumix.util.data.ImmutableCollection;
 import org.gzoumix.util.syntax.Position;
 
 import java.util.*;

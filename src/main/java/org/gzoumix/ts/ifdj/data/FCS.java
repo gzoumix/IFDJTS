@@ -21,7 +21,7 @@ package org.gzoumix.ts.ifdj.data;
 
 import org.gzoumix.ts.ifdj.data.syntax.core.Attribute;
 import org.gzoumix.ts.ifdj.data.syntax.core.Classs;
-import org.gzoumix.util.HashMapSet;
+import org.gzoumix.util.data.HashMapSet;
 
 import java.util.*;
 

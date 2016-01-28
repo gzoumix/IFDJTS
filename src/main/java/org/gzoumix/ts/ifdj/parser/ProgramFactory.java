@@ -19,7 +19,6 @@ package org.gzoumix.ts.ifdj.parser;
 /******************************************************************************/
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.gzoumix.ts.ifdj.data.SPLS;
 import org.gzoumix.ts.ifdj.data.syntax.ck.DeltaActivation;
@@ -34,7 +33,7 @@ import org.gzoumix.ts.ifdj.data.syntax.fm.Feature;
 import org.gzoumix.ts.ifdj.data.syntax.formula.*;
 import org.gzoumix.ts.ifdj.util.Reference;
 import org.gzoumix.util.Global;
-import org.gzoumix.util.Pair;
+import org.gzoumix.util.data.Pair;
 import org.gzoumix.util.syntax.ANTLRHelper;
 import org.gzoumix.util.syntax.Position;
 

@@ -20,14 +20,17 @@ package org.gzoumix.ts.ifdj.ts;
 
 import org.gzoumix.ts.ifdj.data.FCST;
 import org.gzoumix.ts.ifdj.data.SPLS;
+import org.gzoumix.ts.ifdj.data.syntax.ISuperClassDeclaration;
 import org.gzoumix.ts.ifdj.data.syntax.core.Attribute;
 import org.gzoumix.ts.ifdj.data.syntax.core.Classs;
 import org.gzoumix.ts.ifdj.data.syntax.delta.AttributeModification;
 import org.gzoumix.ts.ifdj.data.syntax.delta.ClassModification;
 import org.gzoumix.ts.ifdj.data.syntax.expression.*;
+import org.gzoumix.ts.ifdj.data.syntax.formula.IFormulaElement;
 import org.gzoumix.ts.ifdj.data.syntax.visitor.VisitorBasic;
 import org.gzoumix.ts.ifdj.util.Reference;
 import org.gzoumix.util.Global;
+import org.gzoumix.util.data.Pair;
 import org.gzoumix.util.graph.ComponentGraph;
 import org.gzoumix.util.graph.Edge;
 import org.gzoumix.util.graph.Graph;
@@ -52,11 +55,11 @@ public class PartialTyping extends VisitorBasic {
   // 2. Class Definition
 
   private TypingEnvironment environment;
-  private Graph<String, Object> subtype;
+  private Graph<String, List<Edge<String,Pair<IFormulaElement, ISuperClassDeclaration>>>> subtype;
   //private Map<IExpression, String> types;
   private boolean hasError;
 
-  private PartialTyping(FCST lookup, ComponentGraph<String> subtype) {
+  private PartialTyping(FCST lookup, ComponentGraph<String, Pair<IFormulaElement, ISuperClassDeclaration>> subtype) {
     this.environment = new TypingEnvironment(lookup);
     this.subtype = subtype.flatten();
     //this.types = new HashMap<>();
@@ -65,8 +68,8 @@ public class PartialTyping extends VisitorBasic {
 
   private boolean isSubtype(String before, String after) {
     if(before.equals(after)) { return true; }
-    for(Edge<String, Object> edge: this.subtype.getNexts(before)) {
-      if(edge.getEnd().equals(after)) { return true; }
+    for(Edge<String, List<Edge<String,Pair<IFormulaElement, ISuperClassDeclaration>>>> edge: this.subtype.getNexts(before)) {
+      if(edge.getEndID().equals(after)) { return true; }
     }
     return false;
   }

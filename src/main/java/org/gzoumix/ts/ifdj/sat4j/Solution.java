@@ -20,7 +20,7 @@ package org.gzoumix.ts.ifdj.sat4j;
 
 import org.gzoumix.ts.ifdj.data.SPLS;
 import org.gzoumix.ts.ifdj.data.syntax.formula.FormulaPredicate;
-import org.gzoumix.util.Pair;
+import org.gzoumix.util.data.Pair;
 
 import java.util.Collection;
 import java.util.HashSet;

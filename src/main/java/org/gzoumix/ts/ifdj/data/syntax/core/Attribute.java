@@ -22,7 +22,7 @@ import org.gzoumix.ts.ifdj.data.syntax.ASTNodeCommonFunctionalities;
 import org.gzoumix.ts.ifdj.data.syntax.IASTNode;
 import org.gzoumix.ts.ifdj.data.syntax.visitor.IVisitor;
 import org.gzoumix.ts.ifdj.data.syntax.expression.IExpression;
-import org.gzoumix.util.Pair;
+import org.gzoumix.util.data.Pair;
 import org.gzoumix.util.syntax.Position;
 
 import java.util.*;

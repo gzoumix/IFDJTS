@@ -18,8 +18,6 @@ package org.gzoumix.ts.ifdj.data;
 /* along with IFDJTS.  If not, see <http://www.gnu.org/licenses/>.            */
 /******************************************************************************/
 
-import org.gzoumix.util.HashMapSet;
-
 import java.util.*;
 
 

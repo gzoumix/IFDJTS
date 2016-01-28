@@ -25,10 +25,11 @@ import org.gzoumix.ts.ifdj.data.syntax.core.Program;
 import org.gzoumix.ts.ifdj.data.syntax.delta.DeltaModule;
 import org.gzoumix.ts.ifdj.data.syntax.formula.IFormulaElement;
 import org.gzoumix.ts.ifdj.util.Reference;
-import org.gzoumix.util.HashMapSet;
-import org.gzoumix.util.Pair;
+import org.gzoumix.util.data.HashMapSet;
+import org.gzoumix.util.data.Pair;
 import org.gzoumix.util.graph.*;
-import org.gzoumix.util.graph.visitor.GraphVisitorBasic;
+import org.gzoumix.util.graph.visitor.GraphTransitiveClosureFactory;
+import org.gzoumix.util.graph.visitor.GraphVisitorDepthSearch;
 
 import java.util.*;
 
@@ -45,13 +46,13 @@ public class SPLS {
   private FCST lookup;
 
   private Graph<String, Pair<IFormulaElement, ISuperClassDeclaration>> inheritanceGraph;
-  private ComponentGraph<String> subtype;
+  private ComponentGraph<String, Pair<IFormulaElement, ISuperClassDeclaration>> subtype;
 
 
   private DMST dmst;
   private Graph<String, DeltaOrdering> deltaOrderGraph;
-  private ComponentGraph<String> deltaOrderComponentGraph;
-  private Graph<String, Object> deltaAfterGraph;
+  private ComponentGraph<String, DeltaOrdering> deltaOrderComponentGraph;
+  private Graph<String, List<Edge<String,DeltaOrdering>>> deltaAfterGraph;
 
   // Additional Informations
   private Set<String> classes;
@@ -90,19 +91,19 @@ public class SPLS {
         String baseClass = sdecl.getBaseClass();
         String superClass = sdecl.getSuperClass();
 
-        this.inheritanceGraph.addVertice(baseClass);
-        this.inheritanceGraph.addVertice(superClass);
+        this.inheritanceGraph.addVertex(baseClass);
+        this.inheritanceGraph.addVertex(superClass);
         this.inheritanceGraph.addEdge(new Pair<>(DELTA_CORE, sdecl), baseClass, superClass);
       }
     }
 
-    this.subtype = this.inheritanceGraph.transitiveClosure();
+    this.subtype = GraphTransitiveClosureFactory.create(this.inheritanceGraph);
 
     // complete the subtyping relation with the null type
-    Component<String> componentNull = new Component<>(Reference.NAME_NULL_TYPE);
-    this.subtype.addVertice(componentNull);
-    for(Component<String> comp: this.subtype.getVertices()) {
-      if(!comp.equals(componentNull)) { this.subtype.addEdge(null, componentNull, comp);
+    ComponentGraph.Component<String, Pair<IFormulaElement, ISuperClassDeclaration>> componentNull = new ComponentGraph.Component<>(new Vertex<String, Pair<IFormulaElement, ISuperClassDeclaration>>(Reference.NAME_NULL_TYPE));
+    this.subtype.addVertex(componentNull);
+    for(Vertex<ComponentGraph.Component<String, Pair<IFormulaElement, ISuperClassDeclaration>>, List<Edge<String, Pair<IFormulaElement, ISuperClassDeclaration>>>> comp: this.subtype.getVertices()) {
+      if(!comp.getID().equals(componentNull)) { this.subtype.addEdge(null, componentNull, comp.getID());
       }
     }
 
@@ -123,7 +124,7 @@ public class SPLS {
     }
 
     this.deltaOrderGraph = (new DeltaOrderGraphFactory()).create(program);
-    this.deltaOrderComponentGraph = this.deltaOrderGraph.transitiveClosure();
+    this.deltaOrderComponentGraph = GraphTransitiveClosureFactory.create(this.deltaOrderGraph);
     this.deltaAfterGraph = this.deltaOrderComponentGraph.flatten();
 
     // Additional Informations
@@ -132,12 +133,12 @@ public class SPLS {
 
     this.deltaAfter = new HashMapSet<>();
     this.deltaBefore = new HashMapSet<>();
-    for(String beforeName: this.deltaAfterGraph.getVertices()) {
-      IFormulaElement before = this.getDelta(beforeName).getID();
+    for(Vertex<String, List<Edge<String, DeltaOrdering>>> beforeName: this.deltaAfterGraph.getVertices()) {
+      IFormulaElement before = this.getDelta(beforeName.getID()).getID();
       this.deltaAfter.putEl(Reference.FORMULA_TRUE, before);
       this.deltaBefore.putEl(before, Reference.FORMULA_TRUE);
-      for(Edge<String, Object> afterName: this.deltaAfterGraph.getNexts(beforeName)) {
-        IFormulaElement after = this.getDelta(afterName.getEnd()).getID();
+      for(Edge<String, List<Edge<String, DeltaOrdering>>> afterName: this.deltaAfterGraph.getNexts(beforeName.getID())) {
+        IFormulaElement after = this.getDelta(afterName.getEndID()).getID();
         this.deltaAfter.putEl(before, after);
         this.deltaBefore.putEl(after, before);
       }
@@ -152,11 +153,11 @@ public class SPLS {
   public Program getProgram() { return this.program; }
   public FCST getFCST() { return this.fcst; }
   public Graph<String, Pair<IFormulaElement, ISuperClassDeclaration>> getInheritanceGraph() { return this.inheritanceGraph; }
-  public ComponentGraph<String> getSubtype() { return this.subtype; }
+  public ComponentGraph<String, Pair<IFormulaElement, ISuperClassDeclaration>> getSubtype() { return this.subtype; }
   public FCST getLookup() { return this.lookup; }
   public DMST getDMST() { return this.dmst; }
   public Graph<String, DeltaOrdering> getDeltaOrderGraph() { return this.deltaOrderGraph; }
-  public ComponentGraph<String> getDeltaOrderComponentGraph() { return this.deltaOrderComponentGraph; }
+  public ComponentGraph<String, DeltaOrdering> getDeltaOrderComponentGraph() { return this.deltaOrderComponentGraph; }
 
   public Set<String> getClasses() { return this.classes; }
   public Set<IFormulaElement> getDeltas() { return this.deltas; }
@@ -178,10 +179,10 @@ public class SPLS {
   }
 
 
-  private static class InhFactory extends GraphVisitorBasic<String, Pair<IFormulaElement, ISuperClassDeclaration>> {
+  private static class InhFactory extends GraphVisitorDepthSearch<String, Pair<IFormulaElement, ISuperClassDeclaration>> {
     public static Map<String, HashMapSet<String,Set<ISuperClassDeclaration>>> create(Graph<String, Pair<IFormulaElement, ISuperClassDeclaration>> graph) {
       InhFactory factory = new InhFactory();
-      graph.depthFirstSearch(factory);
+      factory.visit(graph);
       return factory.res;
     }
 
@@ -190,12 +191,12 @@ public class SPLS {
     private InhFactory() { this.res = new HashMap<>(); }
 
     @Override
-    public void leave(String baseClass, Collection<Edge<String, Pair<IFormulaElement, ISuperClassDeclaration>>> nexts) {
-      for(Edge<String, Pair<IFormulaElement, ISuperClassDeclaration>> next: nexts) {
+    public void leave(Vertex<String, Pair<IFormulaElement, ISuperClassDeclaration>> v) {
+      for(Edge<String, Pair<IFormulaElement, ISuperClassDeclaration>> next: v.getNexts()) {
         HashMapSet<String,Set<ISuperClassDeclaration>> val = new HashMapSet<>();
-        this.res.put(baseClass, val);
+        this.res.put(v.getID(), val);
 
-        String parent = next.getEnd();
+        String parent = next.getEndID();
         ISuperClassDeclaration decl = next.getID().getSecond();
 
         // 1. direct super class
@@ -216,7 +217,6 @@ public class SPLS {
         }
       }
     }
-
   }
 
 
@@ -258,11 +258,11 @@ public class SPLS {
   }
 
 
-  private static class GraphDetailsFactory extends GraphVisitorBasic<Component<String>, Object> {
+  private static class GraphDetailsFactory extends GraphVisitorDepthSearch<ComponentGraph.Component<String, Pair<IFormulaElement, ISuperClassDeclaration>>, List<Edge<String, Pair<IFormulaElement, ISuperClassDeclaration>>>> {
 
-    public static String create(ComponentGraph<String> graph) {
+    public static String create(ComponentGraph<String, Pair<IFormulaElement, ISuperClassDeclaration>> graph) {
       GraphDetailsFactory factory = new GraphDetailsFactory();
-      graph.depthFirstSearch(factory);
+      factory.visit(graph);
       return factory.res;
     }
 
@@ -271,12 +271,12 @@ public class SPLS {
     private GraphDetailsFactory() { this.res = ""; }
 
     @Override
-    public void leave(Component<String> strings, Collection<Edge<Component<String>, Object>> nexts) {
-      for(String v: strings) {
+    public void leave(Vertex<ComponentGraph.Component<String, Pair<IFormulaElement, ISuperClassDeclaration>>, List<Edge<String, Pair<IFormulaElement, ISuperClassDeclaration>>>> tt) {
+      for(Vertex<String, Pair<IFormulaElement, ISuperClassDeclaration>> v : tt.getID()) {
         this.res += "\n  " + v + " -> [";
-        Iterator<Edge<Component<String>, Object>> ie = nexts.iterator();
+        Iterator<Edge<ComponentGraph.Component<String, Pair<IFormulaElement, ISuperClassDeclaration>>, List<Edge<String, Pair<IFormulaElement, ISuperClassDeclaration>>>>> ie = tt.getNexts().iterator();
         while(ie.hasNext()) {
-          Iterator<String> ic = ie.next().getEnd().iterator();
+          Iterator<Vertex<String, Pair<IFormulaElement, ISuperClassDeclaration>>> ic = ie.next().getEndID().iterator();
           while(ic.hasNext()) {
             this.res += ic.next();
             if(ic.hasNext()) { this.res += ", "; }

@@ -22,18 +22,22 @@ import org.gzoumix.ts.ifdj.data.FCS;
 import org.gzoumix.ts.ifdj.data.FCST;
 import org.gzoumix.ts.ifdj.data.syntax.ISuperClassDeclaration;
 import org.gzoumix.ts.ifdj.data.syntax.formula.IFormulaElement;
-import org.gzoumix.util.Pair;
+import org.gzoumix.util.data.Pair;
+import org.gzoumix.util.graph.Vertex;
 import org.gzoumix.util.graph.Edge;
 import org.gzoumix.util.graph.Graph;
-import org.gzoumix.util.graph.visitor.GraphVisitorBasic;
+import org.gzoumix.util.graph.visitor.GraphVisitorDepthSearch;
 
-import java.util.Collection;
 
-public class LookupFactory extends GraphVisitorBasic<String, Pair<IFormulaElement, ISuperClassDeclaration>> {
+
+/**
+ * This class computes the transitive closure (with the subtyping relation) of the attribute definition
+ */
+public class LookupFactory extends GraphVisitorDepthSearch<String, Pair<IFormulaElement, ISuperClassDeclaration>> {
 
   public static FCST create(FCST base, Graph<String, Pair<IFormulaElement, ISuperClassDeclaration>> inheritanceGraph) {
     LookupFactory factory = new LookupFactory(base);
-    inheritanceGraph.depthFirstSearch(factory);
+    factory.visit(inheritanceGraph);
     return factory.res;
   }
 
@@ -45,10 +49,10 @@ public class LookupFactory extends GraphVisitorBasic<String, Pair<IFormulaElemen
   }
 
   @Override
-  public void leave(String s, Collection<Edge<String, Pair<IFormulaElement, ISuperClassDeclaration>>> nexts) {
-    FCS fcs = this.res.get(s);
-    for (Edge<String, Pair<IFormulaElement, ISuperClassDeclaration>> edge : nexts) {
-      fcs.add(this.res.get(edge.getEnd()));
+  public void leave(Vertex<String, Pair<IFormulaElement, ISuperClassDeclaration>> v) {
+    FCS fcs = this.res.get(v.getID());
+    for (Edge<String, Pair<IFormulaElement, ISuperClassDeclaration>> edge : v.getNexts()) {
+      fcs.add(this.res.get(edge.getEndID()));
     }
   }
 }

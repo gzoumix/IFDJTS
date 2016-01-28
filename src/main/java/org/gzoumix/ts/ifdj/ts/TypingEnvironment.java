@@ -23,7 +23,7 @@ import org.gzoumix.ts.ifdj.data.FCST;
 import org.gzoumix.ts.ifdj.data.syntax.core.Attribute;
 import org.gzoumix.ts.ifdj.data.syntax.formula.IFormulaElement;
 import org.gzoumix.ts.ifdj.util.Reference;
-import org.gzoumix.util.Pair;
+import org.gzoumix.util.data.Pair;
 
 import java.util.HashMap;
 import java.util.List;

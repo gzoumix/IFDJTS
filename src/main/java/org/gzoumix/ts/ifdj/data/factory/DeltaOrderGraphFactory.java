@@ -47,8 +47,8 @@ public class DeltaOrderGraphFactory extends VisitorBasic {
   public void visit(DeltaOrdering ordering) {
     String before = ordering.getBefore();
     String after = ordering.getAfter();
-    this.graph.addVertice(before);
-    this.graph.addVertice(after);
+    this.graph.addVertex(before);
+    this.graph.addVertex(after);
     this.graph.addEdge(ordering, before, after);
   }
 }
