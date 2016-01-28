@@ -24,6 +24,7 @@ import org.gzoumix.ts.ifdj.data.syntax.core.Program;
 import org.gzoumix.ts.ifdj.data.syntax.fm.Configuration;
 import org.gzoumix.ts.ifdj.data.syntax.formula.*;
 import org.gzoumix.ts.ifdj.parser.ProgramFactory;
+import org.gzoumix.ts.ifdj.parser.ProgramPrint;
 import org.gzoumix.ts.ifdj.sat4j.Problem;
 import org.gzoumix.ts.ifdj.sat4j.Solution;
 import org.gzoumix.ts.ifdj.ts.Consistency;
@@ -77,6 +78,8 @@ public class TestTyping {
       Global.log.clear();
     }
 
+    System.out.println("Printing the program...");
+    ProgramPrint.print(System.out, program);
 
     // 2. Extracting base informations from the program
 
