@@ -69,6 +69,7 @@ public class ProgramFactory {
   private String fileName;
   private Program res;
   private IFormulaElement delta;
+  private String nameClass;
   private ProgramFactory() { this.res = new Program(); }
 
   private Position extractPositionFrom(ParserRuleContext ctx) {
@@ -192,6 +193,7 @@ public class ProgramFactory {
 
     if (ctx.superclass != null) { res.setSuper(ctx.superclass.getText()); }
 
+    this.nameClass = name;
     for (IFDJParser.AttributeOperationContext app : ctx.attributeOperation()) {
       res.addOperation(this.attributeOperation(app));
     }
@@ -221,7 +223,7 @@ public class ProgramFactory {
   }
 
   private AttributeRemoval AttributeOperationRemoves(IFDJParser.AttributeOperationRemovesContext ctx) {
-    return new AttributeRemoval(this.extractPositionFrom(ctx), ctx.name.getText());
+    return new AttributeRemoval(this.extractPositionFrom(ctx), this.nameClass, ctx.name.getText());
   }
 
 
@@ -235,6 +237,7 @@ public class ProgramFactory {
     String superClass = ctx.superclass.getText();
     Classs res = new Classs(this.extractPositionFrom(ctx), this.delta, name, superClass);
 
+    this.nameClass = name;
     for(IFDJParser.AttributeDeclarationContext attribute: ctx.attributeDeclaration()) {
       res.addAttribute(this.attributeDeclaration(attribute));
     }
@@ -254,7 +257,7 @@ public class ProgramFactory {
 
   private Attribute fieldDeclaration(IFDJParser.FieldDeclarationContext ctx) {
     Attribute.SignatureField sig = new Attribute.SignatureField(ctx.type.getText());
-    return new Attribute(this.extractPositionFrom(ctx), ctx.name.getText(), sig);
+    return new Attribute(this.extractPositionFrom(ctx), this.nameClass, ctx.name.getText(), sig);
   }
 
   private Attribute methodDeclaration(IFDJParser.MethodDeclarationContext ctx) {
@@ -268,7 +271,7 @@ public class ProgramFactory {
       sig.addExpression(this.expression(expression));
     }
 
-    return new Attribute(this.extractPositionFrom(ctx), ctx.name.getText(), sig);
+    return new Attribute(this.extractPositionFrom(ctx), this.nameClass, ctx.name.getText(), sig);
   }
 
 

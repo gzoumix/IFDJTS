@@ -24,6 +24,9 @@ import org.gzoumix.ts.ifdj.data.syntax.IASTNode;
 import org.gzoumix.ts.ifdj.data.syntax.visitor.IVisitor;
 import org.gzoumix.util.syntax.Position;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class ClassRemoval extends ASTNodeCommonFunctionalities<DeltaModule> implements IClassOperation, IASTNode<DeltaModule> {
   private String name;
   private FCS fcs;
@@ -40,6 +43,13 @@ public class ClassRemoval extends ASTNodeCommonFunctionalities<DeltaModule> impl
 
   @Override
   public FCS getFCS() { return this.fcs; }
+
+  @Override
+  public List<AbstractOperation> getRepresentation() {
+    List<AbstractOperation> res = new LinkedList<>();
+    res.add(AbstractOperation.removes(this.getName(), this));
+    return res;
+  }
 
 
   @Override

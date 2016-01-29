@@ -20,8 +20,11 @@ package org.gzoumix.ts.ifdj.data.syntax.delta;/*********************************
 import org.gzoumix.ts.ifdj.data.FCS;
 import org.gzoumix.ts.ifdj.data.syntax.IASTNode;
 
+import java.util.List;
+
 
 public interface IClassOperation extends IASTNode<DeltaModule> {
   String getName();
   FCS getFCS();
+  List<AbstractOperation> getRepresentation();
 }

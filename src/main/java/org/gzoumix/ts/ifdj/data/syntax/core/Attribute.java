@@ -136,11 +136,12 @@ public class Attribute  extends ASTNodeCommonFunctionalities<IASTNode> {
   //////////////////////////////////////////////////////////
   // 2. Class Definition
 
+  private String cl;
   private String name;
   private ISignature sig;
   //private HashMapSet<ISignature, Position> pos;
 
-  public Attribute(Position pos, String name, ISignature sig) {
+  public Attribute(Position pos, String cl, String name, ISignature sig) {
     super(pos);
     this.name = name;
     this.sig = sig;
@@ -156,36 +157,7 @@ public class Attribute  extends ASTNodeCommonFunctionalities<IASTNode> {
   public void accept(IVisitor visitor) { visitor.visit(this); }
 
 
-  /*
-  public Attribute(IFDJParser.AttributeDeclarationContext declTMP) {
-    if(declTMP instanceof IFDJParser.MethodDeclarationContext) {
-      IFDJParser.MethodDeclarationContext decl = (IFDJParser.MethodDeclarationContext)declTMP;
-      this.name = decl.name.getText();
-      this.decls = new HashMapSet<>();
-      String rtype = decl.rtype.getText();
-      List<String> ptypes = new ArrayList<>();
-      for (IFDJParser.MethodParameterContext param : decl.methodParameter()) {
-        ptypes.add(param.type.getText());
-      }
-      this.decls.putEl(new SignatureMethod(rtype, ptypes), decl);
-    } else if(declTMP instanceof IFDJParser.FieldDeclarationContext) {
-      IFDJParser.FieldDeclarationContext decl = (IFDJParser.FieldDeclarationContext)declTMP;
-      this.name = decl.name.getText();
-      this.decls = new HashMapSet<>();
-      String type = decl.type.getText();
-      this.decls.putEl(new SignatureField(type), decl);
-    } else {
-      System.err.println("Encountered unknown kind of");
-    }
-  }
-
-  public boolean merge(Attribute att) {
-    if(att.getName().equals(this.getName())) {
-      this.decls.putAll(att.getDecls());
-      return true;
-    } else { return false; }
-  }*/
-
+  public String getClassName() { return cl; }
   public String getName() { return this.name; }
   public ISignature getSignature() { return this.sig; }
 

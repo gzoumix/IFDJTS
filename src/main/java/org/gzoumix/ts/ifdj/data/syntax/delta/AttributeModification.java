@@ -38,4 +38,8 @@ public class AttributeModification extends ASTNodeCommonFunctionalities<ClassMod
   @Override
   public void accept(IVisitor visitor) { visitor.visit(this); }
 
+  @Override
+  public AbstractOperation getRepresentation() {
+    return AbstractOperation.modifies(this.att.getClassName(), this.att.getName(), this);
+  }
 }

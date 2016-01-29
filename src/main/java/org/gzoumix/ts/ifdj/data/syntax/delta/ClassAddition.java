@@ -20,9 +20,14 @@ package org.gzoumix.ts.ifdj.data.syntax.delta;
 
 import org.gzoumix.ts.ifdj.data.FCS;
 import org.gzoumix.ts.ifdj.data.syntax.ASTNodeCommonFunctionalities;
+import org.gzoumix.ts.ifdj.data.syntax.core.Attribute;
 import org.gzoumix.ts.ifdj.data.syntax.visitor.IVisitor;
 import org.gzoumix.ts.ifdj.data.syntax.core.Classs;
+import org.gzoumix.ts.ifdj.util.Reference;
 import org.gzoumix.util.syntax.Position;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class ClassAddition extends ASTNodeCommonFunctionalities<DeltaModule> implements IClassOperation {
   private Classs c;
@@ -41,6 +46,16 @@ public class ClassAddition extends ASTNodeCommonFunctionalities<DeltaModule> imp
 
   @Override
   public FCS getFCS() { return this.c.getFCS(); }
+
+  @Override
+  public List<AbstractOperation> getRepresentation() {
+    List<AbstractOperation> res =  new LinkedList<>();
+    res.add(AbstractOperation.adds(this.c.getName(), this));
+    for(Attribute att: c.getAttributes()) {
+      res.add(AbstractOperation.adds(this.c.getName(), att.getName(), new AttributeAddition(Reference.DUMMY_POSITION, att)));
+    }
+    return res;
+  }
 
   @Override
   public void accept(IVisitor visitor) { visitor.visit(this); }

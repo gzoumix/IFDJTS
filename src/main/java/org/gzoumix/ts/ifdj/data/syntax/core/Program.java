@@ -28,8 +28,11 @@ import org.gzoumix.ts.ifdj.data.syntax.fm.Configuration;
 import org.gzoumix.ts.ifdj.data.syntax.fm.Feature;
 import org.gzoumix.util.syntax.Position;
 
+import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 
 public class Program implements IASTNode {
@@ -44,6 +47,7 @@ public class Program implements IASTNode {
 
   // Code Base
   private List<DeltaModule> deltas;
+  private Map<String, DeltaModule> mapDelta;
   private List<Classs> classes;
 
 
@@ -55,6 +59,7 @@ public class Program implements IASTNode {
     this.activations = new LinkedList<>();
 
     this.deltas = new LinkedList<>();
+    this.mapDelta = new HashMap<>();
     this.classes = new LinkedList<>();
   }
 
@@ -75,7 +80,7 @@ public class Program implements IASTNode {
   }
 
   public void addDeltaModule(DeltaModule delta) {
-    delta.setFather(this); this.deltas.add(delta);
+    delta.setFather(this); this.deltas.add(delta); this.mapDelta.put(delta.getName(), delta);
   }
   public void addClass(Classs classs) {
     classs.setFather(this); this.classes.add(classs);
@@ -88,8 +93,8 @@ public class Program implements IASTNode {
   public List<DeltaOrdering> getOrderings() { return this.orderings; }
   public List<DeltaActivation> getActivations() { return this.activations; }
   public List<DeltaModule> getDeltas() { return this.deltas; }
+  public DeltaModule getDelta(String name) { return this.mapDelta.get(name); }
   public List<Classs> getClasses() { return this.classes; }
-
 
 
 

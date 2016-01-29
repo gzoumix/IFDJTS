@@ -69,6 +69,16 @@ public class ClassModification extends ASTNodeCommonFunctionalities<DeltaModule>
   }
 
   @Override
+  public List<AbstractOperation> getRepresentation() {
+    List<AbstractOperation> res = new LinkedList<>();
+    if(this.superClass != null) { res.add(AbstractOperation.ext(this.getBaseClass(), this.getSuperClass(), this)); }
+    for(IAttributeOperation op: this.getOperations()) {
+      res.add(op.getRepresentation());
+    }
+    return res;
+  }
+
+  @Override
   public IFormulaElement getDelta() { return this.delta; }
 
   @Override

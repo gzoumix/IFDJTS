@@ -38,4 +38,8 @@ public class AttributeAddition extends ASTNodeCommonFunctionalities<ClassModific
   @Override
   public void accept(IVisitor visitor) { visitor.visit(this); }
 
+  public AbstractOperation getRepresentation() {
+    return AbstractOperation.adds(this.att.getClassName(), this.att.getName(), this);
+  }
+
 }

@@ -94,7 +94,7 @@ public class Reference {
   static {
     // everyone can perform a "toString"
     FCS_OBJECT_CLASS.addAttribute(
-            new Attribute(DUMMY_POSITION, "toString",
+            new Attribute(DUMMY_POSITION, NAME_OBJECT_CLASS, "toString",
                     new Attribute.SignatureMethod(NAME_STRING_CLASS))
     );
 

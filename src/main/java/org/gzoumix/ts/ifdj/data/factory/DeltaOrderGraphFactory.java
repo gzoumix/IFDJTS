@@ -27,13 +27,13 @@ import org.gzoumix.util.graph.Graph;
 public class DeltaOrderGraphFactory extends VisitorBasic {
   private Graph<String, DeltaOrdering> graph;
 
-  public DeltaOrderGraphFactory() { }
+  public static Graph<String, DeltaOrdering> create(Program program) {
+    return (new DeltaOrderGraphFactory(program)).get();
+  }
 
-  public Graph<String, DeltaOrdering> create(Program program) {
-    Graph<String, DeltaOrdering> res = this.graph = new Graph<>();
+  private DeltaOrderGraphFactory(Program program) {
+    this.graph = new Graph<>();
     this.visit(program);
-    this.graph = null;
-    return res;
   }
 
   @Override
@@ -51,4 +51,6 @@ public class DeltaOrderGraphFactory extends VisitorBasic {
     this.graph.addVertex(after);
     this.graph.addEdge(ordering, before, after);
   }
+
+  public Graph<String, DeltaOrdering> get() { return graph; }
 }

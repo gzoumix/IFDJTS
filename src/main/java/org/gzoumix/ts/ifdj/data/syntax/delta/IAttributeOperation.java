@@ -25,4 +25,5 @@ import org.gzoumix.ts.ifdj.data.syntax.core.Attribute;
 
 public interface IAttributeOperation extends IASTNode<ClassModification> {
   //Attribute getAttribute();
+  AbstractOperation getRepresentation();
 }

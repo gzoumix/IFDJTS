@@ -123,7 +123,7 @@ public class SPLS {
       }
     }
 
-    this.deltaOrderGraph = (new DeltaOrderGraphFactory()).create(program);
+    this.deltaOrderGraph = DeltaOrderGraphFactory.create(program);
     this.deltaOrderComponentGraph = GraphTransitiveClosureFactory.create(this.deltaOrderGraph);
     this.deltaAfterGraph = this.deltaOrderComponentGraph.flatten();
 
