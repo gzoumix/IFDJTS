@@ -42,7 +42,7 @@ public class FormulaOr extends ImmutableCollection<IFormula> implements IFormula
     return res;
   }
 
-  public boolean addDirect(FormulaOr formula) { return this.content.addAll(formula); }
+  public boolean addAll(Collection<? extends IFormula> fs) { return this.content.addAll(fs); }
 
   @Override
   public boolean eval(Collection<FormulaPredicate> truePredicates) {

@@ -41,7 +41,8 @@ public class FormulaAnd extends ImmutableCollection<IFormula> implements IFormul
     return res;
   }
 
-  public boolean addDirect(FormulaAnd formula) { return this.content.addAll(formula); }
+  @Override
+  public boolean addAll(Collection<? extends IFormula> fs) { return this.content.addAll(fs); }
 
   @Override
   public boolean eval(Collection<FormulaPredicate> truePredicates) {

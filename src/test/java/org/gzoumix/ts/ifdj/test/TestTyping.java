@@ -48,9 +48,9 @@ public class TestTyping {
   @Parameterized.Parameters
   public static Collection<String[]> data() {
     String[][] data = {
-            /*{ Reference.EXAMPLE_EMPTY },*/
-            { Reference.EXAMPLE_HELLO_WORLD }/*,
-            { Reference.EXAMPLE_EXPRESSION }*/
+            /*{ Reference.EXAMPLE_EMPTY },
+            { Reference.EXAMPLE_HELLO_WORLD },*/
+            { Reference.EXAMPLE_EXPRESSION }
     };
     return Arrays.asList(data);
   }
@@ -59,7 +59,7 @@ public class TestTyping {
   public String fileName;
   private Vector<String> fileNameVector = new Vector<>(1);
 
-  @Test
+  //@Test
   public void testTyping() throws IOException {
 
     System.out.println("Testing the file \"" + this.fileName + "\"...");
@@ -212,7 +212,7 @@ public class TestTyping {
     ProgramPrint.print(System.out, program);
 
     System.out.println("\n\nRefactoring the Program");
-    Monotonicity.refactor(program, Monotonicity.Operation.ADDS);
+    Monotonicity.refactor(program, Monotonicity.Operation.REMOVES);
 
     System.out.println("Printing the Program...");
     ProgramPrint.print(System.out, program);

@@ -46,19 +46,19 @@ public class Monotonicity {
 
   public static void refactor(Program p, Operation op) {
     Monotonicity factory = new Monotonicity(p);
-    if(op == Operation.ADDS) { factory.increasing(); }
+    if(op == Operation.REMOVES) { factory.increasing(); }
     else {System.out.println("Decreasing not implemented yet!!");}
   }
 
   private Program program;
   private Graph<String, DeltaOrdering> deltaOrderGraph;
   private LinkedList<Vertex<String, DeltaOrdering>> to;
-  private int pos;
+  //private int pos;
 
   private Vertex<String, DeltaOrdering> v1, v2;
   private DeltaModule d1, d2;
   private IDeltaOperation abs1, abs2;
-  private ListIterator<Vertex<String, DeltaOrdering>> itd1, itd2;
+  private ListIterator<Vertex<String, DeltaOrdering>> itd2;
   private Set<IFormulaElement> s;
 
   private Monotonicity(Program program) { this.program = program; }
@@ -78,11 +78,12 @@ public class Monotonicity {
       return;
     }
 
-    this.pos = 0;
-    this.itd1 = this.to.listIterator(pos);
-    while(this.itd1.hasNext()) {
-      this.v1 = this.itd1.next();
-      pos++;
+    System.out.println("Topological Order = " + this.to);
+
+    //this.pos = 0;
+    while(!this.to.isEmpty()) {
+      this.v1 = this.to.poll();
+      //pos++;
       this.d1 = this.program.getDelta(this.v1.getID());
       Iterator<IClassOperation> itcop = this.d1.getOperations().iterator();
       while(itcop.hasNext()) {
@@ -107,18 +108,22 @@ public class Monotonicity {
   }
 
   private void manageAddOperation() {
+    System.out.println("Managing delta \"" + this.d1.getName() + "\": operation = " + this.abs1.getOperation().getName() + " " + this.abs1.getNameElement());
     this.s = new HashSet<>();
-    this.itd2 = this.to.listIterator(pos);
+    //this.itd2 = this.to.listIterator(pos);
+    this.itd2 = this.to.listIterator(0);
     while(this.itd2.hasNext()) {
       this.v2 = this.itd2.next();
       this.d2 = this.program.getDelta(this.v2.getID());
+      System.out.println("Checking delta \"" + this.d2.getName() + "\"");
       List<IClassOperation> cops = this.d2.getOperations();
       Iterator<IClassOperation> itcop = cops.iterator();
       while(itcop.hasNext()) {
         IClassOperation cop = itcop.next();
+        System.out.println("  considering op=\"" + ABS(cop) + "\"");
         if(this.abs1.getNameElement().leq(cop.getName())) {
           itcop.remove();
-          if(cops.isEmpty()) { this.removeDelta(); }
+          if(cops.isEmpty()) { this.removeDelta2(); }
           this.abs2 = cop;
           this.mergeAddOperations();
         } else if(cop instanceof ClassModification) {
@@ -128,18 +133,19 @@ public class Monotonicity {
             IAttributeOperation aop = itaop.next();
             if (this.abs1.getNameElement().leq(aop.getClassName(), aop.getName())) {
               itaop.remove();
-              if(aops.isEmpty() && (((ClassModification) cop).getSuper() == null)) { this.removeDelta(); }
+              if(aops.isEmpty() && (((ClassModification) cop).getSuper() == null)) { this.removeDelta2(); }
               this.abs2 = aop;
               this.mergeAddOperations();
             }
           }
         }
       }
-      mergeRemoveToCore();
     }
+    mergeRemoveToCore();
   }
 
   private void mergeAddOperations() {
+    System.out.println("  found opposite delta \"" + this.d2.getName() + "\": operation = " + this.abs2.getOperation().getName() + " " + this.abs2.getNameElement());
     // first delta
     FormulaAnd f1 = new FormulaAnd();
     f1.addAll(this.s);
@@ -154,6 +160,7 @@ public class Monotonicity {
   }
 
   private void mergeRemoveToCore() {
+    System.out.println("Putting in Core delta \"" + this.d1.getName() + "\": operation = " + this.abs1.getOperation().getName() + " " + this.abs1.getNameElement());
     AbstractOperation.NameElement el = this.abs1.getNameElement();
     IDeltaOperation abs = null;
     if(el.isClass()) {
@@ -175,7 +182,7 @@ public class Monotonicity {
       FormulaAnd f = new FormulaAnd();
       f.add(this.d1.getID());
       for(IFormulaElement fel: this.s) { f.add(new FormulaNot(fel)); }
-      this.addDelta(abs, this.v1, this.itd1, f);
+      this.addDelta(abs, this.v1, null, f);
     }
   }
 
@@ -190,7 +197,7 @@ public class Monotonicity {
       f2.add(this.d2.getID());
       f2.add(this.d1.getID());
       IDeltaOperation abs = createModifyFrom(this.abs1);
-      this.addDelta(abs, this.v1, this.itd1, f2);
+      this.addDelta(abs, this.v1, null, f2);
 
     }
   }
@@ -212,26 +219,26 @@ public class Monotonicity {
 
 
   private void addDelta(IDeltaOperation op, Vertex<String, DeltaOrdering> v, ListIterator<Vertex<String, DeltaOrdering>> it, IFormula cond) {
-    DeltaModule origin = this.program.getDelta(v.getID());
 
     // 1. create the delta
-    DeltaModule delta = new DeltaModule(Reference.DUMMY_POSITION, origin.getName() + "_" + op.getOperation().getName() + "_" + op.getNameElement().toString());
+    DeltaModule delta = new DeltaModule(Reference.DUMMY_POSITION, v.getID() + "_" + op.getOperation().getName() + "_" + op.getNameElement().toString());
+    System.out.println("Adding delta \"" + delta.getName() + "\"");
     if(op instanceof IClassOperation) {
       IClassOperation cop = (IClassOperation)op;
-      cop.setDelta(origin.getID());
+      cop.setDelta(delta.getID());
       delta.addOperation(cop);
     } else {
       IAttributeOperation aop = (IAttributeOperation) op;
       ClassModification abs = new ClassModification(Reference.DUMMY_POSITION, aop.getClassName());
       abs.addOperation(aop);
-      abs.setDelta(origin.getID());
+      abs.setDelta(delta.getID());
       delta.addOperation(abs);
     }
 
     program.addDeltaModule(delta);
     program.addDeltaActivation(new DeltaActivation(Reference.DUMMY_POSITION, delta.getName(), cond));
     Vertex<String, DeltaOrdering> vd = this.deltaOrderGraph.addVertex(delta.getName());
-    it.add(vd);
+    if(it != null) { it.add(vd); }
 
     for(Edge<String, DeltaOrdering> prev: v.getPrevs()) {
       DeltaOrdering order = new DeltaOrdering(Reference.DUMMY_POSITION, prev.getStartID(), delta.getName());
@@ -246,8 +253,15 @@ public class Monotonicity {
 
   }
 
-  private void removeDelta() { // from the list and from the program
+  private void removeDelta2() { // from the list and from the program
+    System.out.println("Removing delta \"" + this.d2.getName() + "\"");
     this.itd2.remove();
     this.program.removeDelta(this.d2.getName());
+
+    for(Edge<String, DeltaOrdering> prev: this.v2.getPrevs()) { this.program.removeOrdering(prev.getID()); }
+    for(Edge<String, DeltaOrdering> next: v2.getNexts()) { this.program.removeOrdering(next.getID()); }
+
   }
+
+  private static String ABS(IDeltaOperation op) { return op.getOperation() + " " + op.getNameElement(); }
 }

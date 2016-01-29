@@ -438,10 +438,10 @@ public class ProgramFactory {
     FormulaAnd res = new FormulaAnd(this.extractPositionFrom(ctx));
     IFormula tmp;
     tmp = this.formula(ctx.left);
-    if(tmp instanceof FormulaAnd) { res.addDirect((FormulaAnd)tmp); }
+    if(tmp instanceof FormulaAnd) { res.addAll((FormulaAnd) tmp); }
     else {res.add(tmp); }
     tmp = this.formula(ctx.right);
-    if(tmp instanceof FormulaAnd) { res.addDirect((FormulaAnd)tmp); }
+    if(tmp instanceof FormulaAnd) { res.addAll((FormulaAnd) tmp); }
     else {res.add(tmp); }
 
     return res;
@@ -451,10 +451,10 @@ public class ProgramFactory {
     FormulaOr res = new FormulaOr(this.extractPositionFrom(ctx));
     IFormula tmp;
     tmp = this.formula(ctx.left);
-    if(tmp instanceof FormulaOr) { res.addDirect((FormulaOr)tmp); }
+    if(tmp instanceof FormulaOr) { res.addAll((FormulaOr)tmp); }
     else {res.add(tmp); }
     tmp = this.formula(ctx.right);
-    if(tmp instanceof FormulaOr) { res.addDirect((FormulaOr)tmp); }
+    if(tmp instanceof FormulaOr) { res.addAll((FormulaOr)tmp); }
     else {res.add(tmp); }
 
     return res;

@@ -38,7 +38,7 @@ public class Program implements IASTNode {
   private List<Configuration> configurations;
 
   // Configuration Knowledge
-  private List<DeltaOrdering> orderings;
+  private Set<DeltaOrdering> orderings;
   private List<DeltaActivation> activations;
 
   // Code Base
@@ -50,7 +50,7 @@ public class Program implements IASTNode {
     this.features = new LinkedList<>();
     this.configurations = new LinkedList<>();
 
-    this.orderings = new LinkedList<>();
+    this.orderings = new HashSet<>();
     this.activations = new LinkedList<>();
 
     this.deltas = new HashMap<>();
@@ -84,7 +84,7 @@ public class Program implements IASTNode {
   // 2. Getters
   public List<Feature> getFeatures() { return this.features; }
   public List<Configuration> getConfigurations() { return this.configurations; }
-  public List<DeltaOrdering> getOrderings() { return this.orderings; }
+  public Collection<DeltaOrdering> getOrderings() { return this.orderings; }
   public List<DeltaActivation> getActivations() { return this.activations; }
   public Collection<DeltaModule> getDeltas() { return this.deltas.values(); }
   public DeltaModule getDelta(String name) { return this.deltas.get(name); }
@@ -93,9 +93,17 @@ public class Program implements IASTNode {
 
   //////////////////////////////////////////////////////////////////////////////
   // 3. Program Manipulation
-  public DeltaModule removeDelta(String name) { return this.deltas.remove(name); }
   public Classs removeClass(String name) { return this.classes.remove(name); }
+  public void removeOrdering(DeltaOrdering order) { this.orderings.remove(order); }
 
+  public DeltaModule removeDelta(String name) {
+    Iterator<DeltaActivation> itact = this.getActivations().iterator();
+    while(itact.hasNext()) {
+      DeltaActivation act = itact.next();
+      if(act.getDelta().equals(name)) { itact.remove(); }
+    }
+    return this.deltas.remove(name);
+  }
 
 
 

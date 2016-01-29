@@ -40,4 +40,23 @@ public class DeltaOrdering extends ASTNodeCommonFunctionalities<Program> {
 
   @Override
   public void accept(IVisitor visitor) { visitor.visit(this); }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    DeltaOrdering that = (DeltaOrdering) o;
+
+    if (!before.equals(that.before)) return false;
+    return after.equals(that.after);
+
+  }
+
+  @Override
+  public int hashCode() {
+    int result = before.hashCode();
+    result = 71 * result + after.hashCode();
+    return result;
+  }
 }

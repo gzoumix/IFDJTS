@@ -127,7 +127,7 @@ public class ProgramPrint extends VisitorBasic {
     out.print(SEMICOLON + "\n\n");
 
     // 2.2. delta order
-    out.print(DELTA_ACTS + " ");
+    out.print(DELTA_ORDERS + " ");
     Iterator<DeltaOrdering> itdeltaorder = program.getOrderings().iterator();
     while(itdeltaorder.hasNext()) {
       itdeltaorder.next().accept(this);

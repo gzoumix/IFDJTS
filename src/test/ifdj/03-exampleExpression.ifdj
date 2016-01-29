@@ -14,15 +14,17 @@ constraints: EPL
 // 2. Configuration Knowledge
 
 delta order:
- { DLitEval, DAddEval, DNeg, DOptionalPrint, DremAdd } <  DLitAddPrint,
-  { DNegPrint, DNegEval } < DNeg ;
+  DLitAddPrint < { DLitEval, DAddEval, DNeg, DOptionalPrint },
+  DAddEval < DremAdd,
+  DNeg < { DNegPrint, DNegEval };
 
 delta activation:
   DLitAddPrint when true,
-  { DLitEval, DAddEval } when Eval,
+  DLitEval when Eval,
   DNeg when Neg,
   DNegPrint when Neg && Print,
   DNegEval when Neg && Eval,
+  DAddEval when Add && Eval,
   DOptionalPrint when Add && Print,
   DremAdd when !Add;
 

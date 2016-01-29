@@ -37,6 +37,10 @@ generateGrammarSource {
   arguments = ['-no-listener', '-package', 'org.gzoumix.ts.ifdj.parser']
 }
 
+test {
+  // show standard out and standard error of the test JVM(s) on the console
+  //testLogging.showStandardStreams = true
+}
 
 ////////////////////////////////////////////
 // 3. Tasks
