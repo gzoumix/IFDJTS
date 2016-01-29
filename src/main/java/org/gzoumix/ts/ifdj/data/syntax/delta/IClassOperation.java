@@ -1,4 +1,4 @@
-package org.gzoumix.ts.ifdj.data.syntax.delta;/******************************************************************************/
+/******************************************************************************/
 /* Copyright Gzoumix 2015                                                     */
 /*                                                                            */
 /* This file is part of Gzoumcraft (a minecraft mod).                         */
@@ -16,15 +16,18 @@ package org.gzoumix.ts.ifdj.data.syntax.delta;/*********************************
 /* You should have received a copy of the GNU General Public License          */
 /* along with Gzoumcraft.  If not, see <http://www.gnu.org/licenses/>.        */
 /******************************************************************************/
+package org.gzoumix.ts.ifdj.data.syntax.delta;
 
 import org.gzoumix.ts.ifdj.data.FCS;
 import org.gzoumix.ts.ifdj.data.syntax.IASTNode;
+import org.gzoumix.ts.ifdj.data.syntax.formula.IFormulaElement;
 
 import java.util.List;
 
 
-public interface IClassOperation extends IASTNode<DeltaModule> {
+public interface IClassOperation extends IASTNode<DeltaModule>, IDeltaOperation {
+  void setDelta(IFormulaElement delta);
   String getName();
   FCS getFCS();
-  List<AbstractOperation> getRepresentation();
+  List<AbstractOperation> getFullRepresentation();
 }

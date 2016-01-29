@@ -25,6 +25,7 @@ import org.gzoumix.ts.ifdj.data.syntax.fm.Configuration;
 import org.gzoumix.ts.ifdj.data.syntax.formula.*;
 import org.gzoumix.ts.ifdj.parser.ProgramFactory;
 import org.gzoumix.ts.ifdj.parser.ProgramPrint;
+import org.gzoumix.ts.ifdj.refactor.Monotonicity;
 import org.gzoumix.ts.ifdj.sat4j.Problem;
 import org.gzoumix.ts.ifdj.sat4j.Solution;
 import org.gzoumix.ts.ifdj.ts.Consistency;
@@ -59,7 +60,7 @@ public class TestTyping {
   private Vector<String> fileNameVector = new Vector<>(1);
 
   @Test
-  public void test() throws IOException {
+  public void testTyping() throws IOException {
 
     System.out.println("Testing the file \"" + this.fileName + "\"...");
 
@@ -78,8 +79,6 @@ public class TestTyping {
       Global.log.clear();
     }
 
-    System.out.println("Printing the program...");
-    ProgramPrint.print(System.out, program);
 
     // 2. Extracting base informations from the program
 
@@ -187,7 +186,38 @@ public class TestTyping {
     if(hasConsitencyerror) { System.out.println("The program is not well typed."); }
     else { System.out.println("The program is well typed."); }
 
+  }
+
+  @Test
+  public void testRefactor() throws IOException {
+
+    System.out.println("Testing the file \"" + this.fileName + "\"...");
+
+    // 1. Parsing the file
+
+    this.fileNameVector.add(this.fileName);
+    Program program = ProgramFactory.create(this.fileNameVector);
+    fileNameVector.remove(0);
+    if (Global.log.hasError()) {
+      Assert.fail("\n" + Global.log.toString());
+      Global.log.clear();
+      return;
+    } else {
+      System.out.println("  -> Parsing successful");
+      Global.log.toStream(System.out);
+      Global.log.clear();
+    }
+
+    System.out.println("Printing the Program...");
+    ProgramPrint.print(System.out, program);
+
+    System.out.println("\n\nRefactoring the Program");
+    Monotonicity.refactor(program, Monotonicity.Operation.ADDS);
+
+    System.out.println("Printing the Program...");
+    ProgramPrint.print(System.out, program);
 
   }
 
-}
+
+  }

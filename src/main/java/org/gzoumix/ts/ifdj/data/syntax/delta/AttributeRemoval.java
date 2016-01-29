@@ -26,22 +26,33 @@ import org.gzoumix.util.syntax.Position;
 public class AttributeRemoval extends ASTNodeCommonFunctionalities<ClassModification> implements IAttributeOperation {
   private String cl;
   private String name;
+  private AbstractOperation op;
 
   public AttributeRemoval(Position pos, String cl, String name) {
     super(pos);
     this.cl = cl;
+    this.op = AbstractOperation.removes(this.cl, this.name, this);
     this.name = name;
   }
 
+  @Override
   public String getName() { return this.name; }
-  public String getCl() { return cl; }
+
+  @Override
+  public String getClassName() { return cl; }
 
   @Override
   public void accept(IVisitor visitor) { visitor.visit(this); }
 
+
   @Override
-  public AbstractOperation getRepresentation() {
-    return AbstractOperation.removes(this.cl, this.name, this);
-  }
+  public AbstractOperation getRepresentation() { return this.op; }
+
+  @Override
+  public AbstractOperation.Operation getOperation() { return this.getRepresentation().getOp(); }
+
+  @Override
+  public AbstractOperation.NameElement getNameElement() { return this.getRepresentation().getEl(); }
+
 }
 

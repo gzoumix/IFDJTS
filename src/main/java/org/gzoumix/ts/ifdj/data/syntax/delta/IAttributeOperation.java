@@ -23,7 +23,9 @@ import org.gzoumix.ts.ifdj.data.syntax.core.Attribute;
 
 
 
-public interface IAttributeOperation extends IASTNode<ClassModification> {
+public interface IAttributeOperation extends IASTNode<ClassModification>, IDeltaOperation {
   //Attribute getAttribute();
-  AbstractOperation getRepresentation();
+
+  String getClassName();
+  String getName();
 }

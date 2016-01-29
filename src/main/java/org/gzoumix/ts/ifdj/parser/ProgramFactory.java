@@ -189,7 +189,8 @@ public class ProgramFactory {
 
   private ClassModification classOperationModifies(IFDJParser.ClassOperationModifiesContext ctx) {
     String name = ctx.name.getText();
-    ClassModification res = new ClassModification(this.extractPositionFrom(ctx), this.delta, name);
+    ClassModification res = new ClassModification(this.extractPositionFrom(ctx), name);
+    res.setDelta(this.delta);
 
     if (ctx.superclass != null) { res.setSuper(ctx.superclass.getText()); }
 

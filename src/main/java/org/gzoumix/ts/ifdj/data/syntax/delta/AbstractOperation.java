@@ -38,14 +38,37 @@ public class AbstractOperation {
     public NameElement(String c) { this.c = c; this.a = null; }
     public NameElement(String c, String a) { this.c = c; this.a = a; }
 
-    public boolean leq(NameElement el) {
-      return (this.c == el.c) && ((this.a == null) || ((el.a != null) && (this.a == el.a)));
-    }
+    public boolean leq(NameElement el) { return (this.c.equals(el.c)) && ((this.a == null)? true : ((el.a != null) && (this.a.equals(el.a)))); }
+    public boolean leq(String c) { return (this.c.equals(c)) && (this.a == null); }
+    public boolean leq(String c, String a) { return (this.c.equals(c)) && ((this.a == null)? true : this.a.equals(a)); }
 
     public String getNameClass() { return c; }
     public String getNameAttribute() { return a; }
     public boolean isClass() { return this.a == null; }
     public boolean isAttribute() { return this.a != null; }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+
+      NameElement that = (NameElement) o;
+
+      if (!c.equals(that.c)) return false;
+      return !(a != null ? !a.equals(that.a) : that.a != null);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = c.hashCode();
+      result = 31 * result + (a != null ? a.hashCode() : 0);
+      return result;
+    }
+
+    @Override
+    public String toString() {
+      return "C" + this.c + ((this.a == null) ? "" : "A" + this.a);
+    }
   }
 
 

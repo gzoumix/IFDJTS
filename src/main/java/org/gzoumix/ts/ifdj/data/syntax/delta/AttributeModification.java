@@ -26,20 +26,34 @@ import org.gzoumix.util.syntax.Position;
 
 public class AttributeModification extends ASTNodeCommonFunctionalities<ClassModification> implements IAttributeOperation {
   private Attribute att;
+  private AbstractOperation op;
 
   public AttributeModification(Position pos, Attribute att) {
     super(pos);
     this.att = att;
+    this.op = AbstractOperation.modifies(this.att.getClassName(), this.att.getName(), this);
     att.setFather(this);
   }
 
   public Attribute getAttribute() { return this.att; }
 
   @Override
-  public void accept(IVisitor visitor) { visitor.visit(this); }
+  public String getClassName() { return this.att.getClassName(); }
 
   @Override
-  public AbstractOperation getRepresentation() {
-    return AbstractOperation.modifies(this.att.getClassName(), this.att.getName(), this);
-  }
+  public String getName() { return this.att.getName(); }
+
+  @Override
+  public void accept(IVisitor visitor) { visitor.visit(this); }
+
+
+  @Override
+  public AbstractOperation getRepresentation() { return this.op; }
+
+  @Override
+  public AbstractOperation.Operation getOperation() { return this.getRepresentation().getOp(); }
+
+  @Override
+  public AbstractOperation.NameElement getNameElement() { return this.getRepresentation().getEl(); }
+
 }

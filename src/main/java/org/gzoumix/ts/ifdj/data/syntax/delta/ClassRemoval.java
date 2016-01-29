@@ -21,6 +21,7 @@ package org.gzoumix.ts.ifdj.data.syntax.delta;
 import org.gzoumix.ts.ifdj.data.FCS;
 import org.gzoumix.ts.ifdj.data.syntax.ASTNodeCommonFunctionalities;
 import org.gzoumix.ts.ifdj.data.syntax.IASTNode;
+import org.gzoumix.ts.ifdj.data.syntax.formula.IFormulaElement;
 import org.gzoumix.ts.ifdj.data.syntax.visitor.IVisitor;
 import org.gzoumix.util.syntax.Position;
 
@@ -30,12 +31,18 @@ import java.util.List;
 public class ClassRemoval extends ASTNodeCommonFunctionalities<DeltaModule> implements IClassOperation, IASTNode<DeltaModule> {
   private String name;
   private FCS fcs;
+  private AbstractOperation op;
+  private IFormulaElement delta;
 
   public ClassRemoval(Position pos, String name) {
     super(pos);
     this.name = name;
     this.fcs = new FCS(this.name);
+    this.op = AbstractOperation.removes(this.getName(), this);
   }
+
+  @Override
+  public void setDelta(IFormulaElement delta) { this.delta = delta; }
 
   // implementation of IClassOperation
   @Override
@@ -45,12 +52,20 @@ public class ClassRemoval extends ASTNodeCommonFunctionalities<DeltaModule> impl
   public FCS getFCS() { return this.fcs; }
 
   @Override
-  public List<AbstractOperation> getRepresentation() {
+  public List<AbstractOperation> getFullRepresentation() {
     List<AbstractOperation> res = new LinkedList<>();
-    res.add(AbstractOperation.removes(this.getName(), this));
+    res.add(this.op);
     return res;
   }
 
+  @Override
+  public AbstractOperation getRepresentation() { return this.op; }
+
+  @Override
+  public AbstractOperation.Operation getOperation() { return this.getRepresentation().getOp(); }
+
+  @Override
+  public AbstractOperation.NameElement getNameElement() { return this.getRepresentation().getEl(); }
 
   @Override
   public void accept(IVisitor visitor) { visitor.visit(this); }

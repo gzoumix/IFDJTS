@@ -26,14 +26,13 @@ import org.gzoumix.ts.ifdj.data.syntax.formula.IFormulaElement;
 import org.gzoumix.ts.ifdj.data.syntax.visitor.IVisitor;
 import org.gzoumix.util.syntax.Position;
 
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 
 public class Classs  extends ASTNodeCommonFunctionalities<IASTNode> implements ISuperClassDeclaration<IASTNode> {
   private IFormulaElement delta;
   private String name;
-  private List<Attribute> atts;
+  private Map<String,Attribute> atts;
   private String superClass;
 
   public Classs(Position pos, IFormulaElement delta, String name, String superClass) {
@@ -41,25 +40,27 @@ public class Classs  extends ASTNodeCommonFunctionalities<IASTNode> implements I
     this.delta = delta;
     this.name = name;
     this.superClass = superClass;
-    this.atts = new Vector<>();
+    this.atts = new HashMap<>();
   }
 
   public String getName() { return this.name; }
   public String getSuper() { return this.superClass; }
 
-  public boolean addAttribute(Attribute att) {
-    boolean res = this.atts.add(att);
-    if(res) { att.setFather(this); }
-    return res;
+  public void setDelta(IFormulaElement delta) { this.delta = delta; }
+  public void addAttribute(Attribute att) {
+    this.atts.put(att.getName(), att);
+    att.setFather(this);
   }
-  public List<Attribute> getAttributes() { return this.atts; }
+  public Collection<Attribute> getAttributes() { return this.atts.values(); }
+  public Attribute getAttribute(String name) { return this.atts.get(name); }
+  public Attribute removeAttribute(String name) { return this.atts.remove(name); }
 
 
 
   public FCS getFCS() {
     FCS res = new FCS(this.getName());
     res.addOrigin(this);
-    for(Attribute att: this.atts) { res.addAttribute(att); }
+    for(Attribute att: this.getAttributes()) { res.addAttribute(att); }
     return res;
   }
 

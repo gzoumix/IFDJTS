@@ -28,11 +28,7 @@ import org.gzoumix.ts.ifdj.data.syntax.fm.Configuration;
 import org.gzoumix.ts.ifdj.data.syntax.fm.Feature;
 import org.gzoumix.util.syntax.Position;
 
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class Program implements IASTNode {
@@ -46,9 +42,8 @@ public class Program implements IASTNode {
   private List<DeltaActivation> activations;
 
   // Code Base
-  private List<DeltaModule> deltas;
-  private Map<String, DeltaModule> mapDelta;
-  private List<Classs> classes;
+  private Map<String, DeltaModule> deltas;
+  private Map<String, Classs> classes;
 
 
   public Program() {
@@ -58,9 +53,8 @@ public class Program implements IASTNode {
     this.orderings = new LinkedList<>();
     this.activations = new LinkedList<>();
 
-    this.deltas = new LinkedList<>();
-    this.mapDelta = new HashMap<>();
-    this.classes = new LinkedList<>();
+    this.deltas = new HashMap<>();
+    this.classes = new HashMap<>();
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -80,22 +74,27 @@ public class Program implements IASTNode {
   }
 
   public void addDeltaModule(DeltaModule delta) {
-    delta.setFather(this); this.deltas.add(delta); this.mapDelta.put(delta.getName(), delta);
+    delta.setFather(this); this.deltas.put(delta.getName(), delta);
   }
   public void addClass(Classs classs) {
-    classs.setFather(this); this.classes.add(classs);
+    classs.setFather(this);  this.classes.put(classs.getName(), classs);
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  // 2. Program Accessor
+  // 2. Getters
   public List<Feature> getFeatures() { return this.features; }
   public List<Configuration> getConfigurations() { return this.configurations; }
   public List<DeltaOrdering> getOrderings() { return this.orderings; }
   public List<DeltaActivation> getActivations() { return this.activations; }
-  public List<DeltaModule> getDeltas() { return this.deltas; }
-  public DeltaModule getDelta(String name) { return this.mapDelta.get(name); }
-  public List<Classs> getClasses() { return this.classes; }
+  public Collection<DeltaModule> getDeltas() { return this.deltas.values(); }
+  public DeltaModule getDelta(String name) { return this.deltas.get(name); }
+  public Collection<Classs> getClasses() { return this.classes.values(); }
+  public Classs getClasss(String name) { return this.classes.get(name); }
 
+  //////////////////////////////////////////////////////////////////////////////
+  // 3. Program Manipulation
+  public DeltaModule removeDelta(String name) { return this.deltas.remove(name); }
+  public Classs removeClass(String name) { return this.classes.remove(name); }
 
 
 

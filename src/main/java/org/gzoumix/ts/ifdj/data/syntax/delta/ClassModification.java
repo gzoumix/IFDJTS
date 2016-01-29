@@ -33,16 +33,19 @@ public class ClassModification extends ASTNodeCommonFunctionalities<DeltaModule>
   private String name;
   private String superClass;
   private List<IAttributeOperation> operations;
+  private AbstractOperation op;
 
-  public ClassModification(Position pos, IFormulaElement delta,  String name) {
+  public ClassModification(Position pos, String name) {
     super(pos);
-    this.delta = delta;
     this.name = name;
     this.operations = new LinkedList<>();
+    this.op = AbstractOperation.ext(this.getBaseClass(), this.getSuperClass(), this);
   }
 
   public void setSuper(String superClass) { this.superClass = superClass; }
   public String getSuper() { return this.superClass; }
+  public void setDelta(IFormulaElement delta) { this.delta = delta; }
+
   public boolean addOperation(IAttributeOperation op) {
     boolean res = this.operations.add(op);
     if(res) { op.setFather(this); }
@@ -69,9 +72,9 @@ public class ClassModification extends ASTNodeCommonFunctionalities<DeltaModule>
   }
 
   @Override
-  public List<AbstractOperation> getRepresentation() {
+  public List<AbstractOperation> getFullRepresentation() {
     List<AbstractOperation> res = new LinkedList<>();
-    if(this.superClass != null) { res.add(AbstractOperation.ext(this.getBaseClass(), this.getSuperClass(), this)); }
+    if(this.getSuperClass() != null) { res.add(this.op); }
     for(IAttributeOperation op: this.getOperations()) {
       res.add(op.getRepresentation());
     }
@@ -89,5 +92,15 @@ public class ClassModification extends ASTNodeCommonFunctionalities<DeltaModule>
 
   @Override
   public void accept(IVisitor visitor) { visitor.visit(this); }
+
+  @Override
+  public AbstractOperation getRepresentation() { return this.op; }
+
+  @Override
+  public AbstractOperation.Operation getOperation() { return this.getRepresentation().getOp(); }
+
+  @Override
+  public AbstractOperation.NameElement getNameElement() { return this.getRepresentation().getEl(); }
+
 
 }
