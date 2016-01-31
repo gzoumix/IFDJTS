@@ -1,0 +1,131 @@
+
+
+////////////////////////////////////////////////////
+// 1. Feature Model
+
+
+features: EPL, Data, Operations, Lit, Print, Eval1, Eval2, Neg, Add;
+constraints: Lit && Print;
+
+////////////////////////////////////////////////////
+// 2. Configuration Knowledge
+
+delta order:
+  DLitAddPrint < { DLitEval1, DAddEval1, DLitEval2, DAddEval2, DNeg, DOptionalPrint },
+  { DAddEval1, DAddEval2 } < DremAdd,
+  DNeg < { DNegPrint, DNegEval1, DNegEval2 },
+  {  DLitEval1, DAddEval1, DNegEval1 } <  {  DLitEval2, DAddEval2, DNegEval2 };
+
+delta activation:
+  DLitAddPrint when true,
+  DLitEval1 when Eval1,
+  DLitEval2 when Eval2,
+  DNeg when Neg,
+  DNegPrint when Neg && Print,
+  DNegEval1 when Neg && Eval1,
+  DAddEval1 when Add && Eval1,
+  DNegEval2 when Neg && Eval2,
+  DAddEval2 when Add && Eval2,
+  DOptionalPrint when Add && Print,
+  DremAdd when !Add;
+
+////////////////////////////////////////////////////
+// 1. Core program
+
+delta DLitAddPrint {
+  adds class Exp extends Object { // only used as a type
+    String toString() { return ""; }
+  }
+
+  adds class Lit extends Exp {
+    int value;
+    Lit setLit(int n) { this.value = n; return this; }
+    String toString() { return this.value.toString(); }
+  }
+
+  adds class Add extends Exp {
+    Exp expr1;
+    Exp expr2;
+    Add setAdd(Exp a, Exp b) { this.expr1 = a; this.expr2 = b; return this; }
+    String toString() { return this.expr1.toString() ^ " + " ^ this.expr2.toString(); }
+  }
+}
+
+
+////////////////////////////////////////////////////
+// 2. Eval Feature
+
+delta DLitEval1 {
+  modifies Exp {
+    adds int eval() { return 0; }
+  }
+
+  modifies Lit {
+    adds int eval() { return this.value; }
+  }
+}
+
+delta DAddEval1 {
+  modifies Add {
+    adds int eval() { return expr1.eval() + this.expr2.eval(); }
+  }
+}
+
+
+delta DLitEval2 {
+  modifies Exp {
+    adds Lit eval() { return null; }
+  }
+
+  modifies Lit {
+    adds Lit eval() { return this; }
+  }
+}
+
+delta DAddEval2 {
+  modifies Add {
+    adds Lit eval() { return (new Lit()).setLit(expr1.eval().value + this.expr2.eval().value); }
+  }
+}
+
+
+////////////////////////////////////////////////////
+// 3. Neg Feature
+
+delta DNeg {
+  adds class Neg extends Exp {
+    Exp expr;
+    Neg setNeg(Exp a) { this.expr = a; return this; }
+  }
+}
+
+delta DNegPrint {
+  modifies Neg {
+    adds String toString() { return "-" ^ expr.toString(); }
+  }
+}
+
+delta DNegEval1 {
+  modifies Neg {
+    adds int eval() { return (-1) * expr.eval(); }
+  }
+}
+
+delta DNegEval2 {
+  modifies Neg {
+    adds Lit eval() { return new Lit().set((-1) * expr.eval().value); }
+  }
+}
+
+////////////////////////////////////////////////////
+// 4. Add Manipulation
+
+delta DOptionalPrint {
+  modifies Add {
+    modifies String toString() { return "(" ^ this.original() ^ ")"; }
+  }
+}
+
+delta DremAdd {
+  removes Add
+}

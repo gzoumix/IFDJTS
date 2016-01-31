@@ -26,7 +26,8 @@ public class Reference {
 
   private static String build(String name) { return PWD + name + EXTENSION; }
 
-  public static String EXAMPLE_EMPTY       = build("01-exampleEmpty");
-  public static String EXAMPLE_HELLO_WORLD = build("02-exampleHelloWorld");
-  public static String EXAMPLE_EXPRESSION  = build("03-exampleExpression");
+  public static String EXAMPLE_EMPTY         = build("01-exampleEmpty");
+  public static String EXAMPLE_HELLO_WORLD   = build("02-exampleHelloWorld");
+  public static String EXAMPLE_EXPRESSION    = build("03-exampleExpression");
+  public static String EXAMPLE_EPL_NUNIFORM  = build("04-EPL-non-uniform");
 }

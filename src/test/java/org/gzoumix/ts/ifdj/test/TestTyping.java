@@ -49,8 +49,9 @@ public class TestTyping {
   public static Collection<String[]> data() {
     String[][] data = {
             /*{ Reference.EXAMPLE_EMPTY },
-            { Reference.EXAMPLE_HELLO_WORLD },*/
-            { Reference.EXAMPLE_EXPRESSION }
+            { Reference.EXAMPLE_HELLO_WORLD },
+            { Reference.EXAMPLE_EXPRESSION },*/
+            { Reference.EXAMPLE_EPL_NUNIFORM }
     };
     return Arrays.asList(data);
   }
