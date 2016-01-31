@@ -62,6 +62,8 @@ public class TestTyping {
   //@Test
   public void testTyping() throws IOException {
 
+    System.out.println("////////////////////////////////////////////////////////////////////////////////");
+    System.out.println("// Typing Test");
     System.out.println("Testing the file \"" + this.fileName + "\"...");
 
     // 1. Parsing the file
@@ -189,8 +191,10 @@ public class TestTyping {
   }
 
   @Test
-  public void testRefactor() throws IOException {
+  public void testRefactorIncreasing() throws IOException {
 
+    System.out.println("////////////////////////////////////////////////////////////////////////////////");
+    System.out.println("// Refactor Increasing Test");
     System.out.println("Testing the file \"" + this.fileName + "\"...");
 
     // 1. Parsing the file
@@ -220,4 +224,38 @@ public class TestTyping {
   }
 
 
+  @Test
+  public void testRefactorDecreasing() throws IOException {
+
+    System.out.println("////////////////////////////////////////////////////////////////////////////////");
+    System.out.println("// Refactor Decreasing Test");
+    System.out.println("Testing the file \"" + this.fileName + "\"...");
+
+    // 1. Parsing the file
+
+    this.fileNameVector.add(this.fileName);
+    Program program = ProgramFactory.create(this.fileNameVector);
+    fileNameVector.remove(0);
+    if (Global.log.hasError()) {
+      Assert.fail("\n" + Global.log.toString());
+      Global.log.clear();
+      return;
+    } else {
+      System.out.println("  -> Parsing successful");
+      Global.log.toStream(System.out);
+      Global.log.clear();
+    }
+
+    System.out.println("Printing the Program...");
+    ProgramPrint.print(System.out, program);
+
+    System.out.println("\n\nRefactoring the Program");
+    Monotonicity.refactor(program, Monotonicity.Operation.ADDS);
+
+    System.out.println("Printing the Program...");
+    ProgramPrint.print(System.out, program);
+
   }
+
+
+}

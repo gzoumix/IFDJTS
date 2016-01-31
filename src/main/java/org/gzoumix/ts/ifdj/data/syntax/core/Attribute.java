@@ -145,6 +145,7 @@ public class Attribute  extends ASTNodeCommonFunctionalities<IASTNode> {
     super(pos);
     this.name = name;
     this.sig = sig;
+    this.cl = cl;
 
     if(sig instanceof SignatureMethod) {
       for(IExpression expression: ((SignatureMethod)sig).getExpressions()) {

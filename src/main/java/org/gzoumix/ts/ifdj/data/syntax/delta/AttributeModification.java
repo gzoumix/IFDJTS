@@ -27,15 +27,20 @@ import org.gzoumix.util.syntax.Position;
 public class AttributeModification extends ASTNodeCommonFunctionalities<ClassModification> implements IAttributeOperation {
   private Attribute att;
   private AbstractOperation op;
+  private boolean replace;
 
   public AttributeModification(Position pos, Attribute att) {
     super(pos);
     this.att = att;
     this.op = AbstractOperation.modifies(this.att.getClassName(), this.att.getName(), this);
     att.setFather(this);
+    this.replace = false;
   }
 
   public Attribute getAttribute() { return this.att; }
+
+  public boolean isReplace() { return replace; }
+  public void setReplace(boolean replace) { this.replace = replace; }
 
   @Override
   public String getClassName() { return this.att.getClassName(); }

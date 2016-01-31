@@ -47,25 +47,25 @@ public class Monotonicity {
   public static void refactor(Program p, Operation op) {
     Monotonicity factory = new Monotonicity(p);
     if(op == Operation.REMOVES) { factory.increasing(); }
-    else {System.out.println("Decreasing not implemented yet!!");}
+    else { factory.decreasing(); }
   }
 
   private Program program;
   private Graph<String, DeltaOrdering> deltaOrderGraph;
   private LinkedList<Vertex<String, DeltaOrdering>> to;
-  //private int pos;
 
   private Vertex<String, DeltaOrdering> v1, v2;
   private DeltaModule d1, d2;
   private IDeltaOperation abs1, abs2;
   private ListIterator<Vertex<String, DeltaOrdering>> itd2;
-  private Set<IFormulaElement> s;
 
   private Monotonicity(Program program) { this.program = program; }
 
 
   /////////////////////////////////////////////////////////////////////////////
   // 1. Increasing Monotonic
+
+  private Set<IFormulaElement> s;
 
   private void increasing() {
     // 1. create the data structure
@@ -91,7 +91,7 @@ public class Monotonicity {
         if(cop instanceof ClassRemoval) {
           itcop.remove();
           this.abs1 = cop;
-          this.manageAddOperation();
+          this.manageRemoveOperation();
         } else if(cop instanceof ClassModification) {
           Iterator<IAttributeOperation> itaop = ((ClassModification) cop).getOperations().iterator();
           while(itaop.hasNext()) {
@@ -99,7 +99,7 @@ public class Monotonicity {
             if(aop instanceof AttributeRemoval) {
               itaop.remove();
               this.abs1 = aop;
-              this.manageAddOperation();
+              this.manageRemoveOperation();
             }
           }
         }
@@ -107,7 +107,7 @@ public class Monotonicity {
     }
   }
 
-  private void manageAddOperation() {
+  private void manageRemoveOperation() {
     System.out.println("Managing delta \"" + this.d1.getName() + "\": operation = " + this.abs1.getOperation().getName() + " " + this.abs1.getNameElement());
     this.s = new HashSet<>();
     //this.itd2 = this.to.listIterator(pos);
@@ -125,7 +125,7 @@ public class Monotonicity {
           itcop.remove();
           if(cops.isEmpty()) { this.removeDelta2(); }
           this.abs2 = cop;
-          this.mergeAddOperations();
+          this.mergeIncreasingOperations();
         } else if(cop instanceof ClassModification) {
           List<IAttributeOperation> aops = ((ClassModification) cop).getOperations();
           Iterator<IAttributeOperation> itaop = aops.iterator();
@@ -135,7 +135,7 @@ public class Monotonicity {
               itaop.remove();
               if(aops.isEmpty() && (((ClassModification) cop).getSuper() == null)) { this.removeDelta2(); }
               this.abs2 = aop;
-              this.mergeAddOperations();
+              this.mergeIncreasingOperations();
             }
           }
         }
@@ -144,7 +144,7 @@ public class Monotonicity {
     mergeRemoveToCore();
   }
 
-  private void mergeAddOperations() {
+  private void mergeIncreasingOperations() {
     System.out.println("  found opposite delta \"" + this.d2.getName() + "\": operation = " + this.abs2.getOperation().getName() + " " + this.abs2.getNameElement());
     // first delta
     FormulaAnd f1 = new FormulaAnd();
@@ -164,7 +164,7 @@ public class Monotonicity {
     AbstractOperation.NameElement el = this.abs1.getNameElement();
     IDeltaOperation abs = null;
     if(el.isClass()) {
-      Classs c = this.program.removeClass(el.getNameClass());
+      Classs c = this.program.removeClass(el.getNameClass()); // apply the remove
       if(c != null) { abs = new ClassAddition(Reference.DUMMY_POSITION, c); }
     } else {
       Classs c = this.program.getClasss(el.getNameClass());
@@ -188,35 +188,169 @@ public class Monotonicity {
 
 
 
+  /////////////////////////////////////////////////////////////////////////////
+  // 1. Decreasing Monotonic
 
-  private void mergeRemoveOperations() {
-    if(this.abs2.getOperation().equals(AbstractOperation.Operation.REMOVES)
-            && this.abs1.getOperation().equals(AbstractOperation.Operation.ADDS)) {
-      FormulaAnd f2 = new FormulaAnd();
-      f2.addAll(this.s);
-      f2.add(this.d2.getID());
-      f2.add(this.d1.getID());
-      IDeltaOperation abs = createModifyFrom(this.abs1);
-      this.addDelta(abs, this.v1, null, f2);
+  //private int pos;
 
+  private void decreasing() {
+    // 1. create the data structure
+    this.deltaOrderGraph = DeltaOrderGraphFactory.create(this.program);
+    LinkedList<Vertex<String, DeltaOrdering>> to;
+    try {
+      to = GraphTopologicalOrderFactory.create(this.deltaOrderGraph);
+    } catch (GraphTopologicalOrderFactory.LoopException e) {
+      e.printStackTrace();
+      return;
     }
+    this.to = new LinkedList<>();
+
+
+    //this.pos = this.to.size() + 1; // one before the current element
+    while(!to.isEmpty()) {
+      this.v1 = to.poll();
+      //pos++;
+      this.d1 = this.program.getDelta(this.v1.getID());
+      Iterator<IClassOperation> itcop = this.d1.getOperations().iterator();
+      while(itcop.hasNext()) {
+        IClassOperation cop = itcop.next();
+        if(cop instanceof ClassAddition) {
+          itcop.remove();
+          this.abs1 = cop;
+          this.manageAddOperation();
+        } else if(cop instanceof ClassModification) {
+          Iterator<IAttributeOperation> itaop = ((ClassModification) cop).getOperations().iterator();
+          while(itaop.hasNext()) {
+            IAttributeOperation aop = itaop.next();
+            if(aop instanceof AttributeAddition) {
+              itaop.remove();
+              this.abs1 = aop;
+              this.manageAddOperation();
+            }
+          }
+        }
+      }
+      this.to.addFirst(this.v1);
+    }
+  }
+
+  private void manageAddOperation() {
+    System.out.println("Managing delta \"" + this.d1.getName() + "\": operation = " + this.abs1.getOperation().getName() + " " + this.abs1.getNameElement());
+    //this.itd2 = this.to.listIterator(this.pos);
+    this.itd2 = this.to.listIterator(0);
+    while(this.itd2.hasNext()) {
+      this.v2 = this.itd2.next();
+      this.d2 = this.program.getDelta(this.v2.getID());
+      System.out.println("Checking delta \"" + this.d2.getName() + "\"");
+      List<IClassOperation> cops = this.d2.getOperations();
+      Iterator<IClassOperation> itcop = cops.iterator();
+      while(itcop.hasNext()) {
+        IClassOperation cop = itcop.next();
+        System.out.println("  considering op=\"" + ABS(cop) + "\"");
+        if(this.abs1.getNameElement().leq(cop.getName()) && (cop.getOperation() == AbstractOperation.Operation.REMOVES)) { // adds C vs
+          itcop.remove();
+          if(cops.isEmpty()) { this.removeDelta2(); }
+          this.abs2 = cop;
+          this.mergeIncreasingOperations();
+        } else if((this.abs1.getNameElement().getNameClass().equals(cop.getName())) && (cop instanceof ClassModification)) {
+          List<IAttributeOperation> aops = ((ClassModification) cop).getOperations();
+          Iterator<IAttributeOperation> itaop = aops.iterator();
+          while(itaop.hasNext()) {
+            IAttributeOperation aop = itaop.next();
+            if (aop.getName().equals(this.abs1.getNameElement().getNameAttribute()) && (aop.getOperation() == AbstractOperation.Operation.REMOVES)) {
+              itaop.remove();
+              if(aops.isEmpty() && (((ClassModification) cop).getSuper() == null)) { this.removeDelta2(); }
+              this.abs2 = aop;
+              this.mergeDecreasingOperations();
+            }
+          }
+        }
+      }
+    }
+    mergeAddToCore();
+  }
+
+
+
+  private void mergeDecreasingOperations() {
+    System.out.println("  found opposite delta \"" + this.d2.getName() + "\": operation = " + this.abs2.getOperation().getName() + " " + this.abs2.getNameElement());
+    // first delta
+    FormulaAnd f1 = new FormulaAnd();
+    f1.add(this.d2.getID());
+    f1.add(new FormulaNot(this.d1.getID()));
+    this.addDelta(this.abs2, this.v2, this.itd2, f1);
+  }
+
+  private void mergeAddToCore() {
+    System.out.println("Putting in Core delta \"" + this.d1.getName() + "\": operation = " + this.abs1.getOperation().getName() + " " + this.abs1.getNameElement());
+    IDeltaOperation absreplace = null;
+    IDeltaOperation absremove = null;
+
+    // 1. construction of the two delta, and add to the core
+    if(this.abs1 instanceof AttributeAddition) {
+      AttributeAddition tmp = (AttributeAddition) this.abs1;
+      Classs c = this.program.getClasss(tmp.getClassName());
+      if (c.getAttribute(tmp.getName()) != null) {
+        ClassModification cop = new ClassModification(Reference.DUMMY_POSITION, tmp.getClassName());
+        AttributeModification aop = new AttributeModification(Reference.DUMMY_POSITION, tmp.getAttribute());
+        aop.setReplace(true);
+        cop.addOperation(aop);
+        absreplace = cop;
+      } else {
+        c.addAttribute(tmp.getAttribute());
+        ClassModification cop = new ClassModification(Reference.DUMMY_POSITION, tmp.getClassName());
+        AttributeRemoval aop = new AttributeRemoval(Reference.DUMMY_POSITION, tmp.getClassName(), tmp.getName());
+        cop.addOperation(aop);
+        absremove = cop;
+      }
+    } else {
+      ClassAddition tmp = (ClassAddition) this.abs1;
+
+      Classs c = this.program.getClasss(tmp.getName());
+      if(c != null) {
+        Collection<String> attsDelta = tmp.getClasss().getAttributeNames();
+        Collection<String> attsProgram = c.getAttributeNames();
+        Set<String> attsReplace = new HashSet<>(attsDelta);
+        attsReplace.retainAll(attsProgram);
+        Set<String> attsRemove = new HashSet<>(attsDelta);
+        attsReplace.removeAll(attsProgram);
+
+        if(!attsReplace.isEmpty()) {
+          ClassModification cop = new ClassModification(Reference.DUMMY_POSITION, tmp.getName());
+          for(String att: attsReplace) {
+            AttributeModification aop = new AttributeModification(Reference.DUMMY_POSITION, tmp.getClasss().getAttribute(att));
+            aop.setReplace(true);
+            cop.addOperation(aop);
+          }
+          absreplace = cop;
+        }
+
+        if(!attsRemove.isEmpty()) {
+          ClassModification cop = new ClassModification(Reference.DUMMY_POSITION, tmp.getName());
+          for(String att: attsReplace) {
+            AttributeRemoval aop = new AttributeRemoval(Reference.DUMMY_POSITION, tmp.getClasss().getName(), att);
+            cop.addOperation(aop);
+          }
+          absremove = cop;
+        }
+
+      } else {
+        this.program.addClass(tmp.getClasss());
+        absremove = new ClassRemoval(Reference.DUMMY_POSITION, tmp.getName());
+      }
+    }
+
+    // add the delta to the program
+    if(absreplace != null ) { this.addDelta(absreplace, this.v1, null, this.d1.getID()); } // no need to add it to this.to, it does not interact with adds.
+    if(absremove != null ) { this.addDelta(absremove, this.v1, this.itd2, new FormulaNot(this.d1.getID())); } // adds it to the end of this.to, the order does not matter
   }
 
 
 
 
 
-  private IDeltaOperation createModifyFrom(IDeltaOperation abs) {
-    if(abs instanceof AttributeAddition) {
-      return new AttributeModification(Reference.DUMMY_POSITION, ((AttributeAddition) abs).getAttribute());
-    } else if(abs instanceof ClassAddition) {
-      return null; // should be "replace" that does not exist
-    }
-    return null;
-  }
-
-
-
+  /////////////////////////////////////////////////////////////////////////////
+  // 3. Utility Functions
 
   private void addDelta(IDeltaOperation op, Vertex<String, DeltaOrdering> v, ListIterator<Vertex<String, DeltaOrdering>> it, IFormula cond) {
 

@@ -218,8 +218,13 @@ public class ProgramPrint extends VisitorBasic {
 
   @Override
   public void visit(AttributeModification attributeModification) {
-    out.print(MODIFIES + " ");
-    attributeModification.getAttribute().accept(this);
+    if(attributeModification.isReplace()) {
+      out.println(REMOVES + " " + attributeModification.getAttribute().getName());
+      out.print(ADDS + " "); attributeModification.getAttribute().accept(this);
+    } else {
+      out.print(MODIFIES + " ");
+      attributeModification.getAttribute().accept(this);
+    }
   }
 
   @Override
@@ -230,7 +235,7 @@ public class ProgramPrint extends VisitorBasic {
 
   @Override
   public void visit(Classs classs) {
-    out.print(CLASS + classs.getBaseClass() + " " + EXTENDS + " " + classs.getSuperClass() + " " + LCBRACKET + "\n");
+    out.print(CLASS + " " + classs.getBaseClass() + " " + EXTENDS + " " + classs.getSuperClass() + " " + LCBRACKET + "\n");
     for(Attribute att: classs.getAttributes()) {
       att.accept(this);
     }
@@ -261,7 +266,7 @@ public class ProgramPrint extends VisitorBasic {
       out.print(RCBRACKET + "\n");
     } else {
       Attribute.SignatureField fsig = (Attribute.SignatureField)sig;
-      out.print(fsig.type() + " " + attribute.getName() + SEMICOLON);
+      out.println(fsig.type() + " " + attribute.getName() + SEMICOLON);
     }
   }
 

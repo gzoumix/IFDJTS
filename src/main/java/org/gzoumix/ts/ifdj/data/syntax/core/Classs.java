@@ -52,6 +52,7 @@ public class Classs  extends ASTNodeCommonFunctionalities<IASTNode> implements I
     att.setFather(this);
   }
   public Collection<Attribute> getAttributes() { return this.atts.values(); }
+  public Collection<String> getAttributeNames() { return this.atts.keySet(); }
   public Attribute getAttribute(String name) { return this.atts.get(name); }
   public Attribute removeAttribute(String name) { return this.atts.remove(name); }
 
