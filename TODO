@@ -1,0 +1,3 @@
+ - use a constraint constructor class
+ - switch from sat4j to choco
+ - complete the main program
